@@ -1,5 +1,5 @@
 import { Route,BrowserRouter as Router, Routes } from "react-router-dom";
-import { Dangnhap, Home, Sanpham } from "../pages";
+import { Dangnhap, Home, Sanpham,Dangki } from "../pages";
 
 const Routers = () => {
   return (
@@ -9,6 +9,7 @@ const Routers = () => {
           <Route path="/" element={<Home />} />
           <Route path="/sanpham" element={<Sanpham />} />
           <Route path="/dangnhap" element={<Dangnhap />} />
+          <Route path="/dangki" element={<Dangki />} />
         </Routes>
       </Router>
     </>
