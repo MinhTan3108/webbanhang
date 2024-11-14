@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../layouts/Header";
 import {
   Box,
@@ -10,42 +10,59 @@ import {
   Typography,
 } from "@mui/material";
 import Footer from "../../layouts/Footer";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts } from "../../store/slices/productSlice";
+import { Link } from "react-router-dom";
 
 const Home = () => {
-  const products = [
-    {
-      title: "LAVENDER FIELDS",
-      description: "100 ml/ Home Fragrance",
-      price: "850.000 VND",
-      image:
-        "https://static.wixstatic.com/media/c837a6_0a6b6f919918476d9c579112fc64b5fe~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_0a6b6f919918476d9c579112fc64b5fe~mv2.jpg", // Thay thế bằng link thực của ảnh
-      label: "Best Seller",
-    },
-    {
-      title: "HONEY KISS",
-      description: "100 ml/ Body Lotion",
-      price: "150.000 VND",
-      image:
-        "https://static.wixstatic.com/media/c837a6_46e62124f4fe4bfd8fa3061e0c815825~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_46e62124f4fe4bfd8fa3061e0c815825~mv2.jpg",
-      label: "Best Seller",
-    },
-    {
-      title: "CITRUS GARDEN",
-      description: "Candle 250 g/ 8.6 oz",
-      price: "550.000 VND",
-      image:
-        "https://static.wixstatic.com/media/c837a6_12bd9fd4c5f5452abbdf76f56512bec6~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_12bd9fd4c5f5452abbdf76f56512bec6~mv2.jpg",
-      label: "Best Seller",
-    },
-    {
-      title: "JASMINE BREEZE",
-      description: "100 ml/ Eau De Parfum",
-      price: "180.000 VND",
-      image:
-        "https://static.wixstatic.com/media/c837a6_748eb14417e049899f171bc21dd54995~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_748eb14417e049899f171bc21dd54995~mv2.jpg",
-      label: "Best Seller",
-    },
-  ];
+  // const products = [
+  //   {
+  //     title: "LAVENDER FIELDS",
+  //     description: "100 ml/ Home Fragrance",
+  //     price: "850.000 VND",
+  //     image:
+  //       "https://static.wixstatic.com/media/c837a6_0a6b6f919918476d9c579112fc64b5fe~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_0a6b6f919918476d9c579112fc64b5fe~mv2.jpg", // Thay thế bằng link thực của ảnh
+  //     label: "Best Seller",
+  //   },
+  //   {
+  //     title: "HONEY KISS",
+  //     description: "100 ml/ Body Lotion",
+  //     price: "150.000 VND",
+  //     image:
+  //       "https://static.wixstatic.com/media/c837a6_46e62124f4fe4bfd8fa3061e0c815825~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_46e62124f4fe4bfd8fa3061e0c815825~mv2.jpg",
+  //     label: "Best Seller",
+  //   },
+  //   {
+  //     title: "CITRUS GARDEN",
+  //     description: "Candle 250 g/ 8.6 oz",
+  //     price: "550.000 VND",
+  //     image:
+  //       "https://static.wixstatic.com/media/c837a6_12bd9fd4c5f5452abbdf76f56512bec6~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_12bd9fd4c5f5452abbdf76f56512bec6~mv2.jpg",
+  //     label: "Best Seller",
+  //   },
+  //   {
+  //     title: "JASMINE BREEZE",
+  //     description: "100 ml/ Eau De Parfum",
+  //     price: "180.000 VND",
+  //     image:
+  //       "https://static.wixstatic.com/media/c837a6_748eb14417e049899f171bc21dd54995~mv2.jpg/v1/fill/w_474,h_474,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/c837a6_748eb14417e049899f171bc21dd54995~mv2.jpg",
+  //     label: "Best Seller",
+  //   },
+  // ];
+  const [page, setPage] = useState(1);
+  const dispatch = useDispatch();
+  const productList = useSelector((state) => state.productState.products);
+  const productTop =
+    productList?.filter((product) => product?.categoryId === 1) || [];
+  useEffect(() => {
+    const payload = {
+      page: 1,
+      _limit: 12,
+      category: [],
+    };
+    dispatch(fetchProducts(payload));
+  }, [dispatch]);
+
   return (
     <Box
       sx={{
@@ -59,7 +76,7 @@ const Home = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          marginBottom :"40px"
+          marginBottom: "40px",
         }}
       >
         <Box display="flex" height="660px" width="100%">
@@ -121,42 +138,45 @@ const Home = () => {
           </Grid>
 
           <Grid container>
-            {products.map((product, index) => (
+            {productTop.map((product, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card elevation={0} sx={{ position: "relative" }}>
-                  <CardMedia
-                    component="img"
-                    height="380px"
-                    image={product.image}
-                    alt={product.title}
-                  />
-                  <Typography
-                    variant="body2"
-                    fontWeight="bold"
-                    sx={{
-                      position: "absolute",
-                      top: 10,
-                      left: 10,
-                      color: "black",
-                      padding: "2px 6px",
-                      borderRadius: "4px",
-                    }}
+                  <Link
+                    to={`/product/${product.id}`}
+                    key={product.id}
+                    style={{ textDecoration: "none", color: "black" }}
                   >
-                    {product.label}
-                  </Typography>
-                  <CardContent style={{ textAlign: "left" }}>
-                    <Typography variant="h6">{product.title}</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {product.description}
-                    </Typography>
+                    <CardMedia
+                      component="img"
+                      height="380px"
+                      image={product.image}
+                      alt={product.name}
+                    />
                     <Typography
-                      variant="h6"
+                      variant="body2"
                       fontWeight="bold"
-                      style={{ marginTop: "10px" }}
+                      sx={{
+                        position: "absolute",
+                        top: 10,
+                        left: 10,
+                        color: "black",
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                      }}
                     >
-                      {product.price}
+                      {product.label}
                     </Typography>
-                  </CardContent>
+                    <CardContent style={{ textAlign: "left" }}>
+                      <Typography variant="h6">{product.name}</Typography>
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        style={{ marginTop: "10px" }}
+                      >
+                        {product.price} VND
+                      </Typography>
+                    </CardContent>
+                  </Link>
                 </Card>
               </Grid>
             ))}
