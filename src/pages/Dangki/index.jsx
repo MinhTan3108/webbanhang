@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import "./Dangki.css";
 //import ảnh vào 
 import anhdangki from "../../images/anhdangki.jpeg";
+import logotruong from "../../images/logo_truong.png";
 
 import Swal from "sweetalert2";
 import Footer from "../../layouts/Footer";
@@ -82,6 +83,7 @@ const DangKy = () => {
             <img src={anhdangki} alt="Đăng ký" />
           </div>
           <div className="dangky-content">
+            <img src={logotruong} alt="" />
             <form onSubmit={formikDangKy.handleSubmit} className="dangky-form">
               <h2>ĐĂNG KÝ</h2>
               <TextField

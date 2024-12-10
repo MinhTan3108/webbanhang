@@ -12,6 +12,7 @@ import {
 import Footer from "../../layouts/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../../store/slices/productSlice";
+import { Link } from "react-router-dom";
 const Sanpham = () => {
     const [page, setPage] = useState(1);
   const dispatch = useDispatch();
@@ -52,6 +53,11 @@ const Sanpham = () => {
             {productList.map((product, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card elevation={0} sx={{ position: "relative" }}>
+                <Link
+                    to={`/product/${product.id}`}
+                    key={product.id}
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
                   <CardMedia
                     component="img"
                     height="380px"
@@ -82,6 +88,7 @@ const Sanpham = () => {
                       {product.price} VND
                     </Typography>
                   </CardContent>
+                  </Link>
                 </Card>
               </Grid>
             ))}

@@ -6,7 +6,6 @@ import {
   Grid,
   Card,
   CardMedia,
-  CardContent,
   Rating,
   CircularProgress,
   IconButton,
@@ -16,22 +15,27 @@ import AddIcon from "@mui/icons-material/Add";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchProductById } from "../../store/slices/productDetailSlice";
-// import { cartsRequest } from "../../api/auth/auth.cartRequest";
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { ShoppingCart } from "@mui/icons-material";
 import Swal from "sweetalert2";
-// import { fetchCarts } from "../../store/slices/cartSlices";
 import Header from "../../layouts/Header";
 import Footer from "../../layouts/Footer";
-// import { cartsRequest } from "../../api/auth/cartRequest";
+import { cartsRequest } from "../../api/auth/auth.cartRequest";
+import { fetchCarts } from "../../store/slices/cartSlices";
 
-const ProductDetail= () => {
-  const [selectedColor, setSelectedColor] = useState(""); // State for selected color
-  const [quantity, setQuantity] = useState(1); // State for quantity
+const ProductDetail = () => {
+  const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
-  const handleColorSelect = (color) => {
-    setSelectedColor(color);
-  };
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  
+  const productDetail = useSelector((state) => state.productDetailState.productDetail);
+  const product = Array.isArray(productDetail) ? productDetail[0] : productDetail;
+
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchProductById(id));
+    }
+  }, [dispatch, id]);
 
   const handleQuantityChange = (type) => {
     if (type === "increase") {
@@ -41,52 +45,72 @@ const ProductDetail= () => {
     }
   };
 
-  const { id } = useParams();
-  const dispatch= useDispatch();
-  const productDetail = useSelector(
-    (state) => state.productDetailState.productDetail
-  );
-  console.log(productDetail);
-  const product = Array.isArray(productDetail) ? productDetail[0] : productDetail;
+  const handleAddCart = async () => {
+    try {
+      const userId = localStorage.getItem("idUser");
+      
+      if (!userId) {
+        Swal.fire({
+          icon: "warning",
+          title: "Please Login",
+          text: "You need to login to add items to cart",
+        });
+        navigate("/dangnhap");
+        return;
+      }
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchProductById(id));
+      if (!product || !product.id) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Product information is missing",
+        });
+        return;
+      }
+
+      console.log('Adding to cart:', {
+        productId: product.id,
+        quantity,
+        userId
+      });
+
+      const result = await cartsRequest({
+        productId: product.id,
+        quantity,
+        userId
+      });
+
+      if (result) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Product added to cart successfully",
+        });
+        dispatch(fetchCarts(userId));
+      } else {
+        throw new Error("Failed to add to cart");
+      }
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to add item to cart. Please try again.",
+      });
     }
-  }, [dispatch, id]);
-
-
-
-  if (!productDetail) {
-    return <div>No product found</div>;
-  }
-  const handleAddCart = () => {
-    // const userId = localStorage.getItem("idUser"); // Retrieve userId from localStorage
-    // if (!userId) {
-    //   navigate("/login");
-    //   return;
-    // }
-    // const dataCart = {
-    //   productId: productDetail.id,
-    //   quantity: quantity,
-    //   userId: String(userId),
-    //   color: selectedColor,
-    // };
-    // try {
-    //   const result = cartsRequest(dataCart );
-    //   if (result) {
-    //     navigate("/cart");
-    //     dispatch(fetchCarts(userId));
-    //   } else {
-    //     Swal.fire({
-    //       icon: "error",
-    //       text: "Something went wrong. Please try again later.",
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
   };
+
+  if (!product) {
+    return (
+      <>
+        <Header />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <CircularProgress />
+        </Box>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -98,14 +122,8 @@ const ProductDetail= () => {
           justifyContent="center"
           sx={{ paddingTop: "109px" }}
         >
-          <Grid item xs={12} sm={6} key={product.id}>
-            <Card
-              sx={{
-                borderRadius: 3,
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
+          <Grid item xs={12} sm={6}>
+            <Card sx={{ borderRadius: 3, position: "relative", overflow: "hidden" }}>
               <CardMedia
                 component="img"
                 height="400"
@@ -127,6 +145,7 @@ const ProductDetail= () => {
             >
               {product.name}
             </Typography>
+            
             <Rating
               name="read-only"
               value={product.rating || 4.5}
@@ -134,17 +153,20 @@ const ProductDetail= () => {
               readOnly
               sx={{ color: "red", paddingTop: "10px" }}
             />
+            
             <Typography variant="caption" color="textSecondary">
               {product.reviewCount || 10}
             </Typography>
+            
             <Typography
               variant="body2"
               mt={2}
               color="textSecondary"
               fontSize={{ fontSize: "18px" }}
             >
-              Pice: ${product.price}
+              Price: {product.price} VND
             </Typography>
+            
             <Typography
               variant="caption"
               color="textSecondary"
@@ -154,33 +176,14 @@ const ProductDetail= () => {
               {product.description}
             </Typography>
 
-            {/* Color Selection */}
-            <Typography variant="subtitle1" mt={2}>
-              Màu sắc:
-            </Typography>
-            <Grid container spacing={1}>
-              {["Silver", "Black", "Gold"].map((color) => (
-                <Grid item key={color}>
-                  <Button
-                    onClick={() => handleColorSelect(color)}
-                    sx={{
-                      backgroundColor: color,
-                      width: 40,
-                      height: 40,
-                      border:
-                         color ? "2px solid black" : "none",
-                    }}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-
-            {/* Quantity Selection */}
             <Typography variant="subtitle1" mt={2}>
               Số lượng:
             </Typography>
             <Box display="flex" alignItems="center">
-              <IconButton onClick={() => handleQuantityChange("decrease")}>
+              <IconButton 
+                onClick={() => handleQuantityChange("decrease")}
+                disabled={quantity <= 1}
+              >
                 <RemoveIcon />
               </IconButton>
               <Typography variant="body1" mx={2}>
@@ -193,7 +196,6 @@ const ProductDetail= () => {
 
             <Grid container spacing={2} sx={{ marginTop: 2 }}>
               <Grid item>
-
                 <Button
                   onClick={handleAddCart}
                   variant="outlined"
@@ -202,7 +204,11 @@ const ProductDetail= () => {
                     border: "1px solid black",
                     color: "white",
                     padding: "7px 90px",
-                    "&:hover": { backgroundColor: "white", color: "black" },
+                    "&:hover": { 
+                      backgroundColor: "white", 
+                      color: "black",
+                      border: "1px solid black"
+                    }
                   }}
                 >
                   <AddShoppingCartIcon sx={{ marginRight: "10px" }} />

@@ -6,14 +6,26 @@ import {
   Button,
   IconButton,
   Box,
+  Badge,
 } from "@mui/material";
 import { ShoppingBag, Person, Search } from "@mui/icons-material";
 import { InputBase } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Header = () => {
   const navigate = useNavigate();
   const isLogin = localStorage.getItem("isLogin") === "true";
+  const isAdmin = localStorage.getItem("userRole") === "admin";
+  const idUser = localStorage.getItem("idUser");
+  const orders = useSelector((state) => state.orderState.orders);
+  
+  const kiemtraorder= orders.map((order) => {
+    if(order.userId === idUser&& order.status === "Đã xác nhận"){
+      return true;
+    }
+    return false;
+  })
   const dangxuat = () => {
     localStorage.clear();
     navigate("/");
@@ -75,6 +87,31 @@ const Header = () => {
           >
             BODY
           </Button>
+
+          {kiemtraorder.includes(true) ? (
+          <Badge
+            color="secondary"
+            badgeContent=" "
+            overlap="circular"
+          >
+            <Button
+            color="inherit"
+            sx={{
+              color: "#1a1a1a",
+              marginLeft: "20px",
+              textTransform: "uppercase",
+              textDecoration: "none",
+              "&:hover": {
+                backgroundColor: "transparent",
+                textDecoration: "underline",
+              },
+            }}
+            onClick={() => navigate("/order")}
+          >
+            Đơn Hàng
+          </Button>
+          </Badge>
+        ) : (
           <Button
             color="inherit"
             sx={{
@@ -87,8 +124,26 @@ const Header = () => {
                 textDecoration: "underline",
               },
             }}
+            onClick={() => navigate("/order")}
           >
-            HOME SCENTS
+            Đơn Hàng
+          </Button>
+        )} 
+          <Button
+            color="inherit"
+            sx={{
+              color: "#1a1a1a",
+              marginLeft: "20px",
+              textTransform: "uppercase",
+              textDecoration: "none",
+              "&:hover": {
+                backgroundColor: "transparent",
+                textDecoration: "underline",
+              },
+            }}
+            onClick={() => navigate("/admin")}
+          >
+            ADMIN
           </Button>
         </Box>
         <Box>
@@ -163,7 +218,7 @@ const Header = () => {
             </IconButton>
           )}
 
-          <IconButton color="inherit" style={{ color: "#000" }}>
+          <IconButton color="inherit" style={{ color: "#000" }} onClick={() => navigate("/buy")}>
             <ShoppingBag />
           </IconButton>
         </Box>

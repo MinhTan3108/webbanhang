@@ -9,6 +9,7 @@ import "./Dangnhap.css";
 import { login } from "../../store/slices/userSlice";
 import anhdangki from "../../images/anhdangki.jpeg";
 import { useDispatch } from "react-redux";
+import logotruong from "../../images/logo_truong.png";
 
 import Swal from "sweetalert2";
 import Footer from "../../layouts/Footer";
@@ -69,8 +70,9 @@ const Dangnhap = () => {
           <img src={anhdangki} alt="Hình ảnh đăng ký" />
         </div>
         <div className="noi-dung-dang-nhap">
+          <img src={logotruong} alt="" />
           <form className="form-dang-nhap" onSubmit={formikDangNhap.handleSubmit}>
-            <h2 style={{ fontFamily: "sans-serif", textAlign: "center" }}>ĐĂNG NHẬP</h2>
+            <h2 style={{ fontFamily: "sans-serif", textAlign: "center" }}>ĐĂNG NHẬP</h2> 
             <TextField
               fullWidth
               id="email"
